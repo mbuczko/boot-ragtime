@@ -6,7 +6,7 @@ Ragtime migrations with Clojure Boot build tool.
 
 This is a simple task for [boot](https://github.com/boot-clj/boot) to generate, apply and rollback migrations with weavejester's [ragtime](https://github.com/weavejester/ragtime).
 
-    $ boot -h
+    $ boot ragtime -h
     Apply/rollback ragtime migrations
 
     Options:
