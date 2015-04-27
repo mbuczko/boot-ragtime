@@ -1,11 +1,13 @@
 (ns mbuczko.boot-ragtime
-  (:require [boot.pod    :as pod]
-            [boot.core   :as core]
-            [clojure.set :as set]))
+  {:boot/export-tasks true}
+  (:require
+   [boot.pod    :as pod]
+   [boot.core   :as core]
+   [boot.util   :as util]))
 
-(def rag-deps '[[ragtime/ragtime.core "0.3.8"]
-                [ragtime/ragtime.sql "0.3.8"]
-                [ragtime/ragtime.sql.files "0.3.8"]])
+(def ^:private rag-deps '[[ragtime/ragtime.core "0.3.8"]
+                          [ragtime/ragtime.sql "0.3.8"]
+                          [ragtime/ragtime.sql.files "0.3.8"]])
 
 (core/deftask ragtime
   "Apply/rollback ragtime migrations"
@@ -24,15 +26,17 @@
         (spit (str name ".up.sql") "-- migration to be applied\n\n")
         (spit (str name ".down.sql") "-- rolling back receipe\n\n")
 
-        (println (str "Creating " name))))
+        (util/info "Creating %s\n" name)))
 
     (if (or list-migrations command)
-      (pod/with-eval-in worker
-        (require 'ragtime.main 'ragtime.sql.files)
+      (if-not database
+        (util/info "No database set\n")
+        (pod/with-eval-in worker
+          (require 'ragtime.main 'ragtime.sql.files)
 
-        (if ~list-migrations
-          (doseq [m (ragtime.sql.files/migrations)] (println (:id m)))
-          (let [options {:database ~database :migrations 'ragtime.sql.files/migrations}]
-            (case ~command
-              :migrate (ragtime.main/migrate options)
-              :rollback (ragtime.main/rollback options (str ~rollback)))))))))
+          (if ~list-migrations
+            (doseq [m (ragtime.sql.files/migrations)] (println (:id m)))
+            (let [options {:database ~database :migrations 'ragtime.sql.files/migrations}]
+              (case ~command
+                :migrate (ragtime.main/migrate options)
+                :rollback (ragtime.main/rollback options (str ~rollback))))))))))
