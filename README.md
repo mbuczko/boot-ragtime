@@ -1,5 +1,8 @@
 # boot-ragtime
-Ragtime migrations with Clojure Boot build tool
+
+[![Clojars Project](http://clojars.org/mbuczko/boot-ragtime/latest-version.svg)](http://clojars.org/mbuczko/boot-ragtime)
+
+Ragtime migrations with Clojure Boot build tool.
 
 This is a simple task for [boot](https://github.com/boot-clj/boot) to generate, apply and rollback migrations with weavejester's [ragtime](https://github.com/weavejester/ragtime).
 
