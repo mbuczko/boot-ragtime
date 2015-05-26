@@ -7,7 +7,7 @@
 (require '[adzerk.bootlaces :refer :all]
          '[mbuczko.boot-ragtime :refer [ragtime]])
 
-(def +version+ "0.1.0-SNAPSHOT")
+(def +version+ "0.1.1")
 
 (bootlaces! +version+)
 
