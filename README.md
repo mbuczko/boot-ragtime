@@ -16,6 +16,7 @@ This is a simple task for [boot](https://github.com/boot-clj/boot) to generate, 
       -m, --migrate             Run all the migrations not applied so far.
       -r, --rollback            Increase number of migrations to be immediately rolled back.
       -l, --list-migrations     List all migrations to be applied.
+      -c, --driver-class        The JDBC driver class name to initialize.
       
 
 ## Examples
@@ -46,3 +47,13 @@ To simplify those commands you may set task option in build.boot:
      ragtime {:database "jdbc:postgresql://localhost:5432/template1?user=postgres"})
    
 and now, you may omit -d ... option from command line.
+
+## JDBC Driver
+
+If you see an exception like `java.sql.SQLException: No suitable driver found`,
+you must explicitly pass the class name of the JDBC driver you're using.  For
+postgres, this is `org.postgresql.Driver`.
+
+To apply migrations using a specified driver name, you might do:
+
+    boot ragtime -m -c org.postgresql.Driver -d "jdbc:postgresql://localhost:5432/template1?user=postgres"
