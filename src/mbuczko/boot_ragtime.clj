@@ -15,8 +15,9 @@
    g generate  MIGRATION  str  "name of generated migration."
    m migrate              bool "Run all the migrations not applied so far."
    r rollback             int  "number of migrations to be immediately rolled back."
-   l list-migrations      bool "List all migrations to be applied."]
-  
+   l list-migrations      bool "List all migrations to be applied."
+   c driver-class         str  "The JDBC driver class name to initialize."]
+
   (let [worker  (pod/make-pod (update-in (core/get-env) [:dependencies] into rag-deps))
         command (if rollback :rollback (if migrate :migrate))]
 
@@ -32,6 +33,7 @@
       (if-not database
         (util/info "No database set\n")
         (pod/with-eval-in worker
+          ~(if driver-class (Class/forName driver-class))
           (require 'ragtime.main 'ragtime.sql.files)
 
           (if ~list-migrations
