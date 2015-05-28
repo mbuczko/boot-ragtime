@@ -20,25 +20,26 @@
 
   (let [worker  (pod/make-pod (update-in (core/get-env) [:dependencies] into rag-deps))
         command (if rollback :rollback (if migrate :migrate))]
+    (core/with-pre-wrap [fs]
+      (if generate
+        (let [curr (.format (java.text.SimpleDateFormat. "yyyyMMddhhmmss") (java.util.Date.))
+              name (str "migrations/" curr "-" generate)]
+          (spit (str name ".up.sql") "-- migration to be applied\n\n")
+          (spit (str name ".down.sql") "-- rolling back receipe\n\n")
 
-    (if generate
-      (let [curr (.format (java.text.SimpleDateFormat. "yyyyMMddhhmmss") (java.util.Date.))
-            name (str "migrations/" curr "-" generate)]
-        (spit (str name ".up.sql") "-- migration to be applied\n\n")
-        (spit (str name ".down.sql") "-- rolling back receipe\n\n")
+          (util/info "Creating %s\n" name)))
 
-        (util/info "Creating %s\n" name)))
+      (if (or list-migrations command)
+        (if-not database
+          (util/info "No database set\n")
+          (pod/with-eval-in worker
+            ~(if driver-class (Class/forName driver-class))
+            (require 'ragtime.main 'ragtime.sql.files)
 
-    (if (or list-migrations command)
-      (if-not database
-        (util/info "No database set\n")
-        (pod/with-eval-in worker
-          ~(if driver-class (Class/forName driver-class))
-          (require 'ragtime.main 'ragtime.sql.files)
-
-          (if ~list-migrations
-            (doseq [m (ragtime.sql.files/migrations)] (println (:id m)))
-            (let [options {:database ~database :migrations 'ragtime.sql.files/migrations}]
-              (case ~command
-                :migrate (ragtime.main/migrate options)
-                :rollback (ragtime.main/rollback options (str ~rollback))))))))))
+            (if ~list-migrations
+              (doseq [m (ragtime.sql.files/migrations)] (println (:id m)))
+              (let [options {:database ~database :migrations 'ragtime.sql.files/migrations}]
+                (case ~command
+                  :migrate (ragtime.main/migrate options)
+                  :rollback (ragtime.main/rollback options (str ~rollback))))))))
+      fs)))
