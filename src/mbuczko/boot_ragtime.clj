@@ -16,14 +16,16 @@
    m migrate              bool "Run all the migrations not applied so far."
    r rollback             int  "number of migrations to be immediately rolled back."
    l list-migrations      bool "List all migrations to be applied."
-   c driver-class         str  "The JDBC driver class name to initialize."]
+   c driver-class         str  "The JDBC driver class name to initialize."
+   _ directory DIRECTORY  str  "directory to store migrations in."]
 
   (let [worker  (pod/make-pod (update-in (core/get-env) [:dependencies] into rag-deps))
-        command (if rollback :rollback (if migrate :migrate))]
+        command (if rollback :rollback (if migrate :migrate))
+        migrations-dir (or directory "migrations")]
     (core/with-pre-wrap [fs]
       (if generate
         (let [curr (.format (java.text.SimpleDateFormat. "yyyyMMddhhmmss") (java.util.Date.))
-              name (str "migrations/" curr "-" generate)]
+              name (str migrations-dir "/" curr "-" generate)]
           (spit (str name ".up.sql") "-- migration to be applied\n\n")
           (spit (str name ".down.sql") "-- rolling back receipe\n\n")
 
@@ -37,8 +39,9 @@
             (require 'ragtime.main 'ragtime.sql.files)
 
             (if ~list-migrations
-              (doseq [m (ragtime.sql.files/migrations)] (println (:id m)))
-              (let [options {:database ~database :migrations 'ragtime.sql.files/migrations}]
+              (doseq [m (ragtime.sql.files/migrations migrations-dir)] (println (:id m)))
+              (let [migrate-fn #(ragtime.sql.files/migrations migrations-dir)
+                    options {:database ~database :migrations 'migrate-fn}]
                 (case ~command
                   :migrate (ragtime.main/migrate options)
                   :rollback (ragtime.main/rollback options (str ~rollback))))))))
