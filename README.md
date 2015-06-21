@@ -10,13 +10,14 @@ This is a simple task for [boot](https://github.com/boot-clj/boot) to generate, 
     Apply/rollback ragtime migrations
 
     Options:
-      -h, --help                Print this help info.
-      -d, --database DATABASE   Set database jdbc url to DATABASE.
-      -g, --generate MIGRATION  Set name of generated migration to MIGRATION.
-      -m, --migrate             Run all the migrations not applied so far.
-      -r, --rollback            Increase number of migrations to be immediately rolled back.
-      -l, --list-migrations     List all migrations to be applied.
-      -c, --driver-class        The JDBC driver class name to initialize.
+      -h, --help                 Print this help info.
+      -d, --database DATABASE    Set database jdbc url to DATABASE.
+      -g, --generate MIGRATION   Set name of generated migration to MIGRATION.
+      -m, --migrate              Run all the migrations not applied so far.
+      -r, --rollback             Increase number of migrations to be immediately rolled back.
+      -l, --list-migrations      List all migrations to be applied.
+      -c, --driver-class         The JDBC driver class name to initialize.
+          --directory DIRECTORY  Set directory to store migrations in to DIRECTORY.
       
 
 ## Examples
