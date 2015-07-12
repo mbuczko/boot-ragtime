@@ -9,7 +9,7 @@
          '[adzerk.boot-test :refer :all]
          '[mbuczko.boot-ragtime :refer [ragtime]])
 
-(def +version+ "0.1.3")
+(def +version+ "0.1.4")
 
 (bootlaces! +version+)
 

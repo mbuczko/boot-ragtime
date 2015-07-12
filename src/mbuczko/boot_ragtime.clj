@@ -5,9 +5,9 @@
    [boot.core   :as core]
    [boot.util   :as util]))
 
-(def ^:private rag-deps '[[ragtime/ragtime.core "0.3.8"]
-                          [ragtime/ragtime.sql "0.3.8"]
-                          [ragtime/ragtime.sql.files "0.3.8"]])
+(def ^:private rag-deps '[[ragtime/ragtime.core "0.3.9"]
+                          [ragtime/ragtime.sql "0.3.9"]
+                          [ragtime/ragtime.sql.files "0.3.9"]])
 
 (core/deftask ragtime
   "Apply/rollback ragtime migrations"
@@ -22,6 +22,7 @@
   (let [worker  (pod/make-pod (update-in (core/get-env) [:dependencies] into rag-deps))
         command (if rollback :rollback (if migrate :migrate))
         migrations-dir (or directory "migrations")]
+
     (core/with-pre-wrap [fs]
       (if generate
         (let [curr (.format (java.text.SimpleDateFormat. "yyyyMMddhhmmss") (java.util.Date.))
@@ -38,10 +39,12 @@
             ~(if driver-class (Class/forName driver-class))
             (require 'ragtime.main 'ragtime.sql.files)
 
+            ;; need to intern function to known namespace because of how ragtime tries to resolve its location
+            (intern 'ragtime.sql.files 'boot-migrations (fn [] (ragtime.sql.files/migrations ~migrations-dir)))
+
             (if ~list-migrations
-              (doseq [m (ragtime.sql.files/migrations migrations-dir)] (println (:id m)))
-              (let [migrate-fn #(ragtime.sql.files/migrations migrations-dir)
-                    options {:database ~database :migrations 'migrate-fn}]
+              (doseq [m (ragtime.sql.files/migrations ~migrations-dir)] (println (:id m)))
+              (let [options {:database ~database :migrations 'ragtime.sql.files/boot-migrations}]
                 (case ~command
                   :migrate (ragtime.main/migrate options)
                   :rollback (ragtime.main/rollback options (str ~rollback))))))))
