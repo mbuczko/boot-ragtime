@@ -28,7 +28,7 @@
         (let [curr (.format (java.text.SimpleDateFormat. "yyyyMMddhhmmss") (java.util.Date.))
               name (str migrations-dir "/" curr "-" generate)]
           (spit (str name ".up.sql") "-- migration to be applied\n\n")
-          (spit (str name ".down.sql") "-- rolling back receipe\n\n")
+          (spit (str name ".down.sql") "-- rolling back recipe\n\n")
 
           (util/info "Creating %s\n" name)))
 
