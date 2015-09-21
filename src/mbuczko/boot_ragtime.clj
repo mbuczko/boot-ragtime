@@ -25,7 +25,7 @@
 
     (core/with-pre-wrap [fs]
       (if generate
-        (let [curr (.format (java.text.SimpleDateFormat. "yyyyMMddhhmmss") (java.util.Date.))
+        (let [curr (.format (java.text.SimpleDateFormat. "yyyyMMddHHmmss") (java.util.Date.))
               name (str migrations-dir "/" curr "-" generate)]
           (spit (str name ".up.sql") "-- migration to be applied\n\n")
           (spit (str name ".down.sql") "-- rolling back recipe\n\n")
