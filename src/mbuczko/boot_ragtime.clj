@@ -5,9 +5,7 @@
    [boot.core   :as core]
    [boot.util   :as util]))
 
-(def ^:private rag-deps '[[ragtime/ragtime.core "0.3.9"]
-                          [ragtime/ragtime.sql "0.3.9"]
-                          [ragtime/ragtime.sql.files "0.3.9"]])
+(def ^:private rag-deps '[[ragtime/ragtime "0.5.2"]])
 
 (core/deftask ragtime
   "Apply/rollback ragtime migrations"
@@ -16,7 +14,7 @@
    m migrate              bool "Run all the migrations not applied so far."
    r rollback             int  "number of migrations to be immediately rolled back."
    l list-migrations      bool "List all migrations to be applied."
-   c driver-class         str  "The JDBC driver class name to initialize."
+   c driver-class  DRIVER str  "The JDBC driver class name to initialize."
    _ directory DIRECTORY  str  "directory to store migrations in."]
 
   (let [worker  (pod/make-pod (update-in (core/get-env) [:dependencies] into rag-deps))
@@ -37,15 +35,16 @@
           (util/info "No database set\n")
           (pod/with-eval-in worker
             ~(if driver-class (Class/forName driver-class))
-            (require 'ragtime.main 'ragtime.sql.files)
+            (require '[ragtime.jdbc :as jdbc]
+                     '[ragtime.repl :as repl])
 
-            ;; need to intern function to known namespace because of how ragtime tries to resolve its location
-            (intern 'ragtime.sql.files 'boot-migrations (fn [] (ragtime.sql.files/migrations ~migrations-dir)))
-
-            (if ~list-migrations
-              (doseq [m (ragtime.sql.files/migrations ~migrations-dir)] (println (:id m)))
-              (let [options {:database ~database :migrations 'ragtime.sql.files/boot-migrations}]
-                (case ~command
-                  :migrate (ragtime.main/migrate options)
-                  :rollback (ragtime.main/rollback options (str ~rollback))))))))
+            (let [migrations (jdbc/load-directory ~migrations-dir)]
+              (if ~list-migrations
+                (doseq [m migrations]
+                  (println (:id m)))
+                (let [config {:datastore (jdbc/sql-database ~database)
+                              :migrations migrations}]
+                  (case ~command
+                    :migrate (repl/migrate config)
+                    :rollback (repl/rollback config ~rollback))))))))
       fs)))
