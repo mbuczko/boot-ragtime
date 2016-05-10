@@ -18,7 +18,10 @@ This is a simple task for [boot](https://github.com/boot-clj/boot) to generate, 
       -l, --list-migrations      List all migrations to be applied.
       -c, --driver-class         The JDBC driver class name to initialize.
           --directory DIRECTORY  Set directory to store migrations in to DIRECTORY.
-      
+
+To use the ragtime task, require it in `build.boot`:
+
+    (require '[mbuczko.boot-ragtime :refer [ragtime]])
 
 ## Examples
 
