@@ -10,14 +10,15 @@ This is a simple task for [boot](https://github.com/boot-clj/boot) to generate, 
     Apply/rollback ragtime migrations
 
     Options:
-      -h, --help                 Print this help info.
-      -d, --database DATABASE    Set database jdbc url to DATABASE.
-      -g, --generate MIGRATION   Set name of generated migration to MIGRATION.
-      -m, --migrate              Run all the migrations not applied so far.
-      -r, --rollback             Increase number of migrations to be immediately rolled back.
-      -l, --list-migrations      List all migrations to be applied.
-      -c, --driver-class         The JDBC driver class name to initialize.
-          --directory DIRECTORY  Set directory to store migrations in to DIRECTORY.
+      -h, --help                     Print this help info.
+      -d, --database DATABASE        DATABASE sets database jdbc url.
+      -g, --generate MIGRATION       MIGRATION sets name of generated migration.
+      -m, --migrate                  Run all the migrations not applied so far.
+      -r, --rollback                 Increase number of migrations to be immediately rolled back.
+      -l, --list-migrations          List all migrations to be applied.
+      -c, --driver-class DRIVER      DRIVER sets the JDBC driver class name to initialize.
+          --directory DIRECTORY      DIRECTORY sets directory to store migrations in.
+          --ragtime-version VERSION  VERSION sets the version of ragtime to use. default: 0.7.2.
 
 To use the ragtime task, require it in `build.boot`:
 
@@ -61,3 +62,8 @@ postgres, this is `org.postgresql.Driver`.
 To apply migrations using a specified driver name, you might do:
 
     boot ragtime -m -c org.postgresql.Driver -d "jdbc:postgresql://localhost:5432/template1?user=postgres"
+
+## Ragtime Version
+
+Currently the default version of ragtime that is used is `0.7.2`. If you need to use another version, this
+can be specified using the `ragtime-version` option.
