@@ -17,10 +17,9 @@
    _ directory DIRECTORY     str  "directory to store migrations in."
    _ ragtime-version VERSION str  "The version of ragtime to use. default: 0.7.2"]
 
-  (let [worker  (pod/make-pod (update-in (core/get-env) [:dependencies] into [['ragtime/ragtime ragtime-version]]))
+  (let [worker  (pod/make-pod (update-in (core/get-env) [:dependencies] into [['ragtime/ragtime (or ragtime-version "0.7.2")]]))
         command (if rollback :rollback (if migrate :migrate))
-        migrations-dir (or directory "migrations")
-        ragtime-version (or ragtime-version "0.7.2")]
+        migrations-dir (or directory "migrations")]
 
     (core/with-pre-wrap [fs]
       (if generate
